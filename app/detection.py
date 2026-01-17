@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-WINDOW_SECONDS = 30
-THRESHOLD = 5
+RULE_WINDOW_SECONDS = 30
+RULE_THRESHOLD = 5
+RULE_ALERT_TYPE = "brute_force_suspected"
+RULE_SEVERITY = "high"
 _FAILURES: Dict[Tuple[str, str], List[datetime]] = {}
 
 
@@ -18,7 +20,7 @@ def process_event(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         return None
 
     now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(seconds=WINDOW_SECONDS)
+    cutoff = now - timedelta(seconds=RULE_WINDOW_SECONDS)
 
     key = (user, ip)
     failures = [t for t in _FAILURES.get(key, []) if t >= cutoff]
@@ -26,14 +28,14 @@ def process_event(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     _FAILURES[key] = failures
 
     fail_count = len(failures)
-    if fail_count == THRESHOLD:
+    if fail_count == RULE_THRESHOLD:
         return {
-            "alert_type": "brute_force_suspected",
-            "severity": "high",
+            "alert_type": RULE_ALERT_TYPE,
+            "severity": RULE_SEVERITY,
             "user": user,
             "ip": ip,
-            "window_seconds": WINDOW_SECONDS,
-            "threshold": THRESHOLD,
+            "window_seconds": RULE_WINDOW_SECONDS,
+            "threshold": RULE_THRESHOLD,
             "fail_count": fail_count,
         }
 

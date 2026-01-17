@@ -46,3 +46,24 @@ def log_alert(record: Dict[str, Any]) -> None:
     # dosya
     with ALERT_LOG.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
+
+
+def load_alerts() -> list[dict]:
+    if not ALERT_LOG.exists():
+        return []
+
+    alerts: list[dict] = []
+    with ALERT_LOG.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            alert = record.get("alert")
+            if isinstance(alert, dict):
+                alerts.append(alert)
+
+    return alerts

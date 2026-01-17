@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 2026-01-17 - Alert kalıcılığı
+### Added
+- Uygulama açılışında `logs/alerts.jsonl` yükleniyor (neden: restart sonrası /alerts boş görünmesin).
+
+### How to test
+- 5 kez başarısız `login_attempt` gönder, `alerts.jsonl` oluşsun.
+- Sunucuyu kapat/aç, `/alerts` çağır; önceki alert listede görünmeli yani 5 adet hatalı denemeden sonra sunucu kapatılım açılsa bile kapatılmadan önceki alert listede görünmeli, bu şöyle bi sıkıntı oluşturabilir uygulamayı tekrar açınca, ram tekrar doldurulur alerts.jsonl dosyası okunarak bu küçük ve kontrollü olduğu için sıkıntı çıkarmaz ama sonuç olarak yükü arttırıyor bu yüzden ilerde limit koymayı düşünüyorum son 1k alert gibi.
+
+## 2026-01-17 - .env güvenliği
+### Added
+- `.env` ve `.env.*` .gitignore'a eklendi (neden: anahtarlar yanlışlıkla git'e girmesin).
+
+### How to test
+- `git ls-files | rg '\.env'`
+
+## 2026-01-17 - Alerts filtresi ve kural netliği
+### Added
+- `.gitignore` eklendi (neden: log ve cache dosyaları Git'e girmesin).
+- GET `/alerts` filtreleri eklendi: user, ip, alert_type, severity (neden: alert listesinde daraltma için).
+
+### Changed
+- Brute force kuralı sabitleri netleştirildi (neden: kural değerleri tek yerde olsun).
+
+### How to test
+- Server: `py -m uvicorn app.main:app --reload`
+- Docs: `http://127.0.0.1:8000/docs`
+- 5 kez başarısız `login_attempt` gönder.
+- `/alerts?user=alice&ip=1.2.3.4` çağır.
+
 ## 2026-01-17 - Brute force tespiti, alert logu ve /alerts
 ### Added
 - Brute force kuralı eklendi (neden: kısa sürede çoklu başarısız denemeyi yakalamak için).
